@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Remuneraciones</title>
+    <style>
+        /* Estilos globales - usando CSS variables para facilitar cambios de tema */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #74b5e4;
+            --secondary-color: #05b34d;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-bg: #2c3e50;
+            --light-bg: #ecf0f1;
+            --white: #ffffff;
+            --text-dark: #34495e;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: var(--dark-bg);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--light-bg);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: var(--white);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Contenedor para inputs en dos columnas */
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, var(--secondary-color), #27ae60);
+            color: var(--white);
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+
+        .btn-reset {
+            background: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        .btn-reset:hover {
+            background: #d5dbdb;
+            transform: translateY(-2px);
+        }
+
+        /* Sección de resultados - con estilo contenedor elegante */
+        .results {
+            display: none;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h2 {
+            color: var(--dark-bg);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        /* Fila de resultado - usamos flexbox para alineación */
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            font-size: 1.05em;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-row.total {
+            background: rgba(46, 204, 113, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid var(--secondary-color);
+        }
+
+        .result-row.total .result-value {
+            color: var(--secondary-color);
+            font-size: 1.3em;
+        }
+
+        /* Mensaje de error - para validaciones */
+        .error-message {
+            display: none;
+            background: #ffe0e0;
+            color: var(--danger-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.3s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        /* Responsive design para pantallas pequeñas */
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💼 Calculadora de Remuneraciones</h1>
+        <p class="subtitle">Calcula tu Sueldo</p>
+
+        <!-- Mensaje de error dinámico -->
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="salaryForm">
+            <!-- Datos personales básicos -->
+            <div class="form-group">
+                <label for="name">Nombre del Empleado</label>
+                <input type="text" id="name" placeholder="Ej: Juan Pérez" required>
+            </div>
+
+            <!-- Salarios base y variables en dos columnas -->
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="baseSalary">Salario Base ($)</label>
+                    <input type="number" id="baseSalary" placeholder="0" min="0" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="extras">Horas Extras ($)</label>
+                    <input type="number" id="extras" placeholder="0" min="0" step="0.01" value="0">
+                </div>
+            </div>
+
+            <!-- Bonus y otros ingresos gratificaciones y eso-->
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="bonus">Bono Colación/ Movilización ($)</label>
+                    <input type="number" id="bonus" placeholder="0" min="0" step="0.01" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="otherIncome">Bono Bienios ($)</label>
+                    <input type="number" id="otherIncome" placeholder="0" min="0" step="0.01" value="0">
+                </div>
+            </div>
+
+            <!-- Descuentos legales -->
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="afp">AFP (%)</label>
+                    <input type="number" id="afp" placeholder="0" min="0" max="100" step="0.01" value="10">
+                </div>
+
+                <div class="form-group">
+                    <label for="health">Salud (%)</label>
+                    <input type="number" id="health" placeholder="0" min="0" max="100" step="0.01" value="7">
+                </div>
+            </div>
+
+            <!-- Impuestos y otros descuentos -->
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="tax">Impuesto/Retención (%)</label>
+                    <input type="number" id="tax" placeholder="0" min="0" max="100" step="0.01" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="otherDeductions">Otros Descuentos ($)</label>
+                    <input type="number" id="otherDeductions" placeholder="0" min="0" step="0.01" value="0">
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="button-group">
+                <button type="button" class="btn-calculate" onclick="calculateSalary()">Calcular</button>
+                <button type="reset" class="btn-reset" onclick="resetForm()">Limpiar</button>
+            </div>
+        </form>
+
+        <!-- Sección de resultados - se muestra cuando hay cálculo -->
+        <div class="results" id="results">
+            <h2>📊 Detalle de Remuneración</h2>
+
+            <div class="result-row">
+                <span class="result-label">Nombre:</span>
+                <span class="result-value" id="resultName">-</span>
+            </div>
+
+            <h3 style="color: var(--dark-bg); margin-top: 20px; margin-bottom: 10px; font-size: 1.1em;">Ingresos:</h3>
+
+            <div class="result-row">
+                <span class="result-label">Salario Base</span>
+                <span class="result-value">$<span id="resultBase">0</span></span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">Horas Extras</span>
+                <span class="result-value">$<span id="resultExtras">0</span></span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">Bono/Gratificación</span>
+                <span class="result-value">$<span id="resultBonus">0</span></span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">Otros Ingresos</span>
+                <span class="result-value">$<span id="resultOtherIncome">0</span></span>
+            </div>
+
+            <div class="result-row" style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 6px;">
+                <span class="result-label"><strong>Total Ingresos</strong></span>
+                <span class="result-value">$<span id="resultGross">0</span></span>
+            </div>
+
+            <h3 style="color: var(--dark-bg); margin-top: 20px; margin-bottom: 10px; font-size: 1.1em;">Descuentos:</h3>
+
+            <div class="result-row">
+                <span class="result-label">AFP</span>
+                <span class="result-value" style="color: var(--danger-color);">-$<span
+                        id="resultAfpAmount">0</span></span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">Salud</span>
+                <span class="result-value" style="color: var(--danger-color);">-$<span
+                        id="resultHealthAmount">0</span></span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">Impuesto/Retención</span>
+                <span class="result-value" style="color: var(--danger-color);">-$<span
+                        id="resultTaxAmount">0</span></span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">Otros Descuentos</span>
+                <span class="result-value" style="color: var(--danger-color);">-$<span
+                        id="resultOtherDed">0</span></span>
+            </div>
+
+            <div class="result-row" style="background: rgba(231, 76, 60, 0.1); padding: 12px; border-radius: 6px;">
+                <span class="result-label"><strong>Total Descuentos</strong></span>
+                <span class="result-value" style="color: var(--danger-color);">-$<span
+                        id="resultTotalDeductions">0</span></span>
+            </div>
+
+            <!-- Resultado final resaltado -->
+            <div class="result-row total">
+                <span class="result-label"><strong>SUELDO NETO</strong></span>
+                <span class="result-value">$<span id="resultNet">0</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función principal de cálculo - valida datos y realiza operaciones matemáticas
+        function calculateSalary() {
+            // Obtenemos referencias a los elementos del DOM para acceso eficiente
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
+
+            // Capturamos valores del formulario con parseInt/parseFloat para asegurar números
+            const name = document.getElementById('name').value.trim();
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const extras = parseFloat(document.getElementById('extras').value) || 0;
+            const bonus = parseFloat(document.getElementById('bonus').value) || 0;
+            const otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
+            const afpPercent = parseFloat(document.getElementById('afp').value) || 0;
+            const healthPercent = parseFloat(document.getElementById('health').value) || 0;
+            const taxPercent = parseFloat(document.getElementById('tax').value) || 0;
+            const otherDeductions = parseFloat(document.getElementById('otherDeductions').value) || 0;
+
+            // Validación: aseguramos que hay un salario base
+            if (!name) {
+                showError('Por favor ingresa el nombre del empleado');
+                return;
+            }
+
+            if (baseSalary <= 0) {
+                showError('El salario base debe ser mayor a 0');
+                return;
+            }
+
+            // Cálculo de ingresos totales - sumamos todos los rubros positivos
+            const totalIncome = baseSalary + extras + bonus + otherIncome;
+
+            // Cálculos de descuentos porcentuales - multiplicamos el ingreso total por los porcentajes
+            const afpAmount = (totalIncome * afpPercent) / 100;
+            const healthAmount = (totalIncome * healthPercent) / 100;
+            const taxAmount = (totalIncome * taxPercent) / 100;
+
+            // Total de descuentos - suma de todos los rubros negativos
+            const totalDeductions = afpAmount + healthAmount + taxAmount + otherDeductions;
+
+            // Sueldo neto final - ingresos menos descuentos
+            const netSalary = totalIncome - totalDeductions;
+
+            // Actualizar resultados en la interfaz con textContent para seguridad
+            document.getElementById('resultName').textContent = name;
+            document.getElementById('resultBase').textContent = formatCurrency(baseSalary);
+            document.getElementById('resultExtras').textContent = formatCurrency(extras);
+            document.getElementById('resultBonus').textContent = formatCurrency(bonus);
+            document.getElementById('resultOtherIncome').textContent = formatCurrency(otherIncome);
+            document.getElementById('resultGross').textContent = formatCurrency(totalIncome);
+
+            document.getElementById('resultAfpAmount').textContent = formatCurrency(afpAmount);
+            document.getElementById('resultHealthAmount').textContent = formatCurrency(healthAmount);
+            document.getElementById('resultTaxAmount').textContent = formatCurrency(taxAmount);
+            document.getElementById('resultOtherDed').textContent = formatCurrency(otherDeductions);
+            document.getElementById('resultTotalDeductions').textContent = formatCurrency(totalDeductions);
+            document.getElementById('resultNet').textContent = formatCurrency(netSalary);
+
+            // Mostrar sección de resultados con animación
+            document.getElementById('results').classList.add('show');
+        }
+
+        // Función para mostrar errores de validación
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            document.getElementById('results').classList.remove('show');
+        }
+
+        // Función para formatear números como moneda - usamos Intl para localización
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('es-CL', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        // Función para limpiar el formulario
+        function resetForm() {
+            document.getElementById('salaryForm').reset();
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('errorMessage').classList.remove('show');
+            // Restaurar valores por defecto en los campos de porcentaje
+            document.getElementById('afp').value = '10';
+            document.getElementById('health').value = '7';
+        }
+
+        // Permitir calcular con Enter en cualquier input
+        document.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                calculateSalary();
+            }
+        });
+    </script>
+</body>
+
+</html>

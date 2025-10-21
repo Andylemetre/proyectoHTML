@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario - Cocina</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gray-100">
+    <header class="bg-indigo-600 text-white p-4 shadow-md">
+        <h1 class="text-2xl font-bold text-center">Inventario de Cocina</h1>
+    </header>
+
+    <main class="container mx-auto p-6">
+        <!-- Formulario para añadir insumo -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Añadir Insumo</h2>
+            <form id="inventory-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="item-name" placeholder="Nombre del insumo" class="border p-2 rounded-md">
+                <input type="number" id="item-quantity" placeholder="Cantidad" class="border p-2 rounded-md" min="0">
+                <select id="item-unit" class="border p-2 rounded-md">
+                    <option value="">Seleccione unidad</option>
+                    <option value="unid">Unid</option>
+                    <option value="kg">Kg</option>
+                    <option value="lt">Lt</option>
+                </select>
+                <input type="number" id="item-min" placeholder="Stock mínimo" class="border p-2 rounded-md" min="0">
+                <button type="submit"
+                    class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 col-span-1 md:col-span-4">Añadir
+                    Insumo</button>
+            </form>
+        </section>
+
+        <!-- Tabla de inventario -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Inventario Actual</h2>
+            <table class="w-full table-auto border-collapse">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-2">Insumo</th>
+                        <th class="p-2">Cantidad</th>
+                        <th class="p-2">Unidad de Medida</th>
+                        <th class="p-2">Stock Mínimo</th>
+                        <th class="p-2">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-table"></tbody>
+            </table>
+        </section>
+
+        <!-- Formulario para registrar movimiento -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Registrar Movimiento</h2>
+            <form id="movement-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <select id="movement-item" class="border p-2 rounded-md"></select>
+                <select id="movement-type" class="border p-2 rounded-md">
+                    <option value="entrada">Entrada</option>
+                    <option value="salida">Salida</option>
+                </select>
+                <input type="number" id="movement-quantity" placeholder="Cantidad" class="border p-2 rounded-md"
+                    min="0">
+                <input type="text" id="movement-reason" placeholder="Motivo" class="border p-2 rounded-md">
+                <button type="submit"
+                    class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 col-span-1 md:col-span-4">Registrar
+                    Movimiento</button>
+            </form>
+        </section>
+
+        <!-- Historial de movimientos -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Historial de Movimientos</h2>
+            <table class="w-full table-auto border-collapse">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-2">Fecha</th>
+                        <th class="p-2">Insumo</th>
+                        <th class="p-2">Tipo</th>
+                        <th class="p-2">Cantidad</th>
+                        <th class="p-2">Unidad de Medida</th>
+                        <th class="p-2">Motivo</th>
+                    </tr>
+                </thead>
+                <tbody id="movement-table"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

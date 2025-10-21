@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario - Cocina</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .card-shadow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-field {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            background-color: white;
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .low-stock {
+            background-color: #fff5f5;
+            border-left: 4px solid #f56565;
+        }
+
+        .table-row {
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-entrada {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-salida {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .location-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .location-card:hover {
+            transform: scale(1.05);
+        }
+
+        .location-card.selected {
+            border: 3px solid #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+    <header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-6 shadow-lg">
+        <div class="container mx-auto">
+            <h1 class="text-4xl font-bold flex items-center gap-3">
+                <i class="fas fa-utensils"></i> Gestión de Cocina
+            </h1>
+            <p class="text-indigo-200 mt-2">Sistema completo de inventario y herramientas</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-6 max-w-7xl">
+        <!-- Tabs de navegación -->
+        <div class="flex gap-4 mb-8 border-b-2 border-white bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur">
+            <button class="tab-btn active text-white font-semibold px-6 py-2" onclick="switchTab('insumos')">
+                <i class="fas fa-boxes mr-2"></i>Insumos
+            </button>
+            <button class="tab-btn text-white font-semibold px-6 py-2" onclick="switchTab('herramientas')">
+                <i class="fas fa-tools mr-2"></i>Herramientas
+            </button>
+            <button class="tab-btn text-white font-semibold px-6 py-2" onclick="switchTab('historial')">
+                <i class="fas fa-history mr-2"></i>Historial
+            </button>
+        </div>
+
+        <!-- TAB: INSUMOS -->
+        <div id="tab-insumos" class="tab-content">
+            <!-- Formulario Insumos -->
+            <section class="bg-white p-8 rounded-xl card-shadow mb-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-plus-circle text-indigo-600"></i>Añadir Nuevo Insumo
+                </h2>
+                <form id="inventory-form" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <input type="text" id="item-name" placeholder="Nombre del insumo"
+                        class="input-field p-3 rounded-lg">
+                    <input type="number" id="item-quantity" placeholder="Cantidad" class="input-field p-3 rounded-lg"
+                        min="0">
+                    <select id="item-unit" class="input-field p-3 rounded-lg">
+                        <option value="">Unidad de medida</option>
+                        <option value="unid">Unidades</option>
+                        <option value="kg">Kilogramos</option>
+                        <option value="lt">Litros</option>
+                        <option value="gr">Gramos</option>
+                    </select>
+                    <input type="number" id="item-min" placeholder="Stock mínimo" class="input-field p-3 rounded-lg"
+                        min="0">
+                    <button type="submit" class="btn-primary text-white p-3 rounded-lg font-semibold">
+                        <i class="fas fa-check mr-2"></i>Añadir
+                    </button>
+                </form>
+            </section>
+
+            <!-- Tabla Insumos -->
+            <section class="bg-white p-8 rounded-xl card-shadow">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-warehouse text-indigo-600"></i>Inventario Actual
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-indigo-50 to-purple-50">
+                                <th class="p-4 text-left font-semibold text-gray-700">Insumo</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Cantidad</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Unidad</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Mínimo</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Estado</th>
+                                <th class="p-4 text-center font-semibold text-gray-700">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Registrar Movimiento Insumos -->
+            <section class="bg-white p-8 rounded-xl card-shadow mt-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-exchange-alt text-indigo-600"></i>Registrar Movimiento de Insumo
+                </h2>
+                <form id="movement-form" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <select id="movement-item" class="input-field p-3 rounded-lg"></select>
+                    <select id="movement-type" class="input-field p-3 rounded-lg">
+                        <option value="entrada">Entrada</option>
+                        <option value="salida">Salida</option>
+                    </select>
+                    <input type="number" id="movement-quantity" placeholder="Cantidad"
+                        class="input-field p-3 rounded-lg" min="0">
+                    <input type="text" id="movement-reason" placeholder="Motivo" class="input-field p-3 rounded-lg">
+                    <button type="submit" class="btn-primary text-white p-3 rounded-lg font-semibold">
+                        <i class="fas fa-arrow-right mr-2"></i>Registrar
+                    </button>
+                </form>
+            </section>
+        </div>
+
+        <!-- TAB: HERRAMIENTAS -->
+        <div id="tab-herramientas" class="tab-content hidden">
+            <!-- Formulario Herramientas -->
+            <section class="bg-white p-8 rounded-xl card-shadow mb-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-plus-circle text-indigo-600"></i>Añadir Nueva Herramienta
+                </h2>
+                <form id="tools-form" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <input type="text" id="tool-name" placeholder="Nombre de la herramienta"
+                        class="input-field p-3 rounded-lg">
+                    <input type="number" id="tool-quantity" placeholder="Cantidad" class="input-field p-3 rounded-lg"
+                        min="0">
+                    <select id="tool-category" class="input-field p-3 rounded-lg">
+                        <option value="">Categoría</option>
+                        <option value="cubiertos">Cubiertos</option>
+                        <option value="utensilios">Utensilios</option>
+                        <option value="ollas">Ollas y Sartenes</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                    <select id="tool-location" class="input-field p-3 rounded-lg">
+                        <option value="">Ubicación</option>
+                        <option value="bodega">Bodega</option>
+                        <option value="taller">Taller</option>
+                        <option value="pañol">Pañol</option>
+                    </select>
+                    <button type="submit" class="btn-primary text-white p-3 rounded-lg font-semibold">
+                        <i class="fas fa-check mr-2"></i>Añadir
+                    </button>
+                </form>
+            </section>
+
+            <!-- Filtro por Ubicación -->
+            <section class="bg-white p-8 rounded-xl card-shadow mb-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-map-marker-alt text-indigo-600"></i>Filtrar por Ubicación
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="location-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl text-center selected"
+                        onclick="filterByLocation('todas')">
+                        <i class="fas fa-globe text-4xl text-blue-600 mb-3"></i>
+                        <h3 class="font-bold text-lg text-gray-800">Todas</h3>
+                        <p class="text-sm text-gray-600 mt-2">Ver todo el inventario</p>
+                        <p class="text-2xl font-bold text-blue-600 mt-2" id="count-todas">0</p>
+                    </div>
+                    <div class="location-card bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl text-center"
+                        onclick="filterByLocation('bodega')">
+                        <i class="fas fa-warehouse text-4xl text-green-600 mb-3"></i>
+                        <h3 class="font-bold text-lg text-gray-800">Bodega</h3>
+                        <p class="text-sm text-gray-600 mt-2">Almacenamiento principal</p>
+                        <p class="text-2xl font-bold text-green-600 mt-2" id="count-bodega">0</p>
+                    </div>
+                    <div class="location-card bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl text-center"
+                        onclick="filterByLocation('taller')">
+                        <i class="fas fa-tools text-4xl text-orange-600 mb-3"></i>
+                        <h3 class="font-bold text-lg text-gray-800">Taller</h3>
+                        <p class="text-sm text-gray-600 mt-2">Área de trabajo</p>
+                        <p class="text-2xl font-bold text-orange-600 mt-2" id="count-taller">0</p>
+                    </div>
+                    <div class="location-card bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl text-center"
+                        onclick="filterByLocation('pañol')">
+                        <i class="fas fa-box text-4xl text-purple-600 mb-3"></i>
+                        <h3 class="font-bold text-lg text-gray-800">Pañol</h3>
+                        <p class="text-sm text-gray-600 mt-2">Almacén de equipos</p>
+                        <p class="text-2xl font-bold text-purple-600 mt-2" id="count-pañol">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabla Herramientas -->
+            <section class="bg-white p-8 rounded-xl card-shadow">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-wrench text-indigo-600"></i>Herramientas Disponibles
+                    <span id="location-filter-text" class="text-lg font-normal text-gray-600"></span>
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-indigo-50 to-purple-50">
+                                <th class="p-4 text-left font-semibold text-gray-700">Herramienta</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Cantidad</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Categoría</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Ubicación</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Estado</th>
+                                <th class="p-4 text-center font-semibold text-gray-700">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tools-table"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Registrar Movimiento Herramientas -->
+            <section class="bg-white p-8 rounded-xl card-shadow mt-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-exchange-alt text-indigo-600"></i>Registrar Movimiento de Herramienta
+                </h2>
+                <form id="tool-movement-form" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <select id="tool-movement-item" class="input-field p-3 rounded-lg"></select>
+                    <select id="tool-movement-type" class="input-field p-3 rounded-lg">
+                        <option value="entrada">Entrada</option>
+                        <option value="salida">Salida</option>
+                    </select>
+                    <input type="number" id="tool-movement-quantity" placeholder="Cantidad"
+                        class="input-field p-3 rounded-lg" min="0">
+                    <input type="text" id="tool-movement-reason" placeholder="Motivo"
+                        class="input-field p-3 rounded-lg">
+                    <button type="submit" class="btn-primary text-white p-3 rounded-lg font-semibold">
+                        <i class="fas fa-arrow-right mr-2"></i>Registrar
+                    </button>
+                </form>
+            </section>
+        </div>
+
+        <!-- TAB: HISTORIAL -->
+        <div id="tab-historial" class="tab-content hidden">
+            <section class="bg-white p-8 rounded-xl card-shadow">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-history text-indigo-600"></i>Historial de Movimientos
+                </h2>
+                <div class="mb-4 flex gap-2">
+                    <button onclick="filterMovements('todos')"
+                        class="px-4 py-2 rounded-lg bg-indigo-100 text-indigo-600 font-semibold">Todos</button>
+                    <button onclick="filterMovements('insumos')"
+                        class="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 font-semibold hover:bg-indigo-100 hover:text-indigo-600">Insumos</button>
+                    <button onclick="filterMovements('herramientas')"
+                        class="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 font-semibold hover:bg-indigo-100 hover:text-indigo-600">Herramientas</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-indigo-50 to-purple-50">
+                                <th class="p-4 text-left font-semibold text-gray-700">Fecha</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Tipo</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Elemento</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Movimiento</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Cantidad</th>
+                                <th class="p-4 text-left font-semibold text-gray-700">Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movement-table"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        let inventory = [];
+        let tools = [];
+        let movements = [];
+        let currentFilter = 'todos';
+        let currentLocationFilter = 'todas';
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.tab-btn').classList.add('active');
+        }
+
+        function saveData() {
+            inventory.forEach((item, i) => item.id = item.id || `inv-${i}-${Date.now()}`);
+            tools.forEach((item, i) => item.id = item.id || `tool-${i}-${Date.now()}`);
+            const data = { inventory, tools, movements };
+            JSON.stringify(data);
+        }
+
+        function updateInventoryTable() {
+            const tableBody = document.getElementById('inventory-table');
+            tableBody.innerHTML = '';
+            if (inventory.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Sin insumos registrados</td></tr>';
+                return;
+            }
+            inventory.forEach((item, index) => {
+                const isLowStock = item.quantity <= item.minStock;
+                const row = document.createElement('tr');
+                row.className = `table-row ${isLowStock ? 'low-stock' : ''}`;
+                row.innerHTML = `
+                    <td class="p-4 font-semibold text-gray-800">${item.name}</td>
+                    <td class="p-4 text-gray-600">${item.quantity}</td>
+                    <td class="p-4 text-gray-600">${item.unit}</td>
+                    <td class="p-4 text-gray-600">${item.minStock}</td>
+                    <td class="p-4">
+                        <span class="badge ${isLowStock ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                            ${isLowStock ? '⚠️ Bajo Stock' : '✓ OK'}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center flex gap-2 justify-center">
+                        <button onclick="editItem(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg transition">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteItem(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            updateMovementSelect();
+        }
+
+        function updateToolsTable() {
+            const tableBody = document.getElementById('tools-table');
+            tableBody.innerHTML = '';
+
+            let filteredTools = tools;
+            if (currentLocationFilter !== 'todas') {
+                filteredTools = tools.filter(tool => tool.location === currentLocationFilter);
+            }
+
+            if (filteredTools.length === 0) {
+                const msg = currentLocationFilter === 'todas'
+                    ? 'Sin herramientas registradas'
+                    : `Sin herramientas en ${currentLocationFilter}`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">${msg}</td></tr>`;
+                return;
+            }
+
+            filteredTools.forEach((tool) => {
+                const index = tools.indexOf(tool);
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+
+                const locationColors = {
+                    'bodega': 'bg-green-100 text-green-700',
+                    'taller': 'bg-orange-100 text-orange-700',
+                    'pañol': 'bg-purple-100 text-purple-700'
+                };
+
+                const locationIcons = {
+                    'bodega': 'fa-warehouse',
+                    'taller': 'fa-tools',
+                    'pañol': 'fa-box'
+                };
+
+                row.innerHTML = `
+                    <td class="p-4 font-semibold text-gray-800">${tool.name}</td>
+                    <td class="p-4 text-gray-600">${tool.quantity}</td>
+                    <td class="p-4"><span class="badge bg-blue-100 text-blue-700">${tool.category}</span></td>
+                    <td class="p-4">
+                        <span class="badge ${locationColors[tool.location]}">
+                            <i class="fas ${locationIcons[tool.location]} mr-1"></i>${tool.location.charAt(0).toUpperCase() + tool.location.slice(1)}
+                        </span>
+                    </td>
+                    <td class="p-4"><span class="badge bg-green-100 text-green-700">✓ Disponible</span></td>
+                    <td class="p-4 text-center flex gap-2 justify-center">
+                        <button onclick="editTool(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg transition">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteTool(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            updateToolMovementSelect();
+            updateLocationCounts();
+        }
+
+        function updateLocationCounts() {
+            const counts = {
+                todas: tools.length,
+                bodega: tools.filter(t => t.location === 'bodega').length,
+                taller: tools.filter(t => t.location === 'taller').length,
+                pañol: tools.filter(t => t.location === 'pañol').length
+            };
+
+            Object.keys(counts).forEach(location => {
+                const countEl = document.getElementById(`count-${location}`);
+                if (countEl) countEl.textContent = counts[location];
+            });
+        }
+
+        function filterByLocation(location) {
+            currentLocationFilter = location;
+
+            document.querySelectorAll('.location-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.location-card').classList.add('selected');
+
+            const filterText = location === 'todas'
+                ? ''
+                : `- Mostrando: ${location.charAt(0).toUpperCase() + location.slice(1)}`;
+            document.getElementById('location-filter-text').textContent = filterText;
+
+            updateToolsTable();
+        }
+
+        function updateMovementSelect() {
+            const select = document.getElementById('movement-item');
+            select.innerHTML = '<option value="">Seleccionar insumo</option>';
+            inventory.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.name;
+                option.textContent = `${item.name} (${item.unit})`;
+                select.appendChild(option);
+            });
+        }
+
+        function updateToolMovementSelect() {
+            const select = document.getElementById('tool-movement-item');
+            select.innerHTML = '<option value="">Seleccionar herramienta</option>';
+            tools.forEach(tool => {
+                const option = document.createElement('option');
+                option.value = tool.name;
+                option.textContent = `${tool.name} - ${tool.location}`;
+                select.appendChild(option);
+            });
+        }
+
+        function updateMovementTable() {
+            const tableBody = document.getElementById('movement-table');
+            tableBody.innerHTML = '';
+            let filtered = movements;
+            if (currentFilter === 'insumos') filtered = movements.filter(m => m.category === 'insumo');
+            if (currentFilter === 'herramientas') filtered = movements.filter(m => m.category === 'herramienta');
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Sin movimientos registrados</td></tr>';
+                return;
+            }
+            filtered.forEach(movement => {
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <td class="p-4 text-gray-600">${movement.date}</td>
+                    <td class="p-4"><span class="badge ${movement.category === 'insumo' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">${movement.category === 'insumo' ? 'Insumo' : 'Herramienta'}</span></td>
+                    <td class="p-4 font-semibold text-gray-800">${movement.item}</td>
+                    <td class="p-4"><span class="badge ${movement.type === 'entrada' ? 'badge-entrada' : 'badge-salida'}">${movement.type === 'entrada' ? '↓ Entrada' : '↑ Salida'}</span></td>
+                    <td class="p-4 text-gray-600">${movement.quantity} ${movement.unit}</td>
+                    <td class="p-4 text-gray-600">${movement.reason}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterMovements(type) {
+            currentFilter = type;
+            document.querySelectorAll('[onclick^="filterMovements"]').forEach(btn => {
+                btn.classList.remove('!bg-indigo-100', '!text-indigo-600', 'bg-indigo-100', 'text-indigo-600');
+                btn.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            event.target.classList.remove('bg-gray-100', 'text-gray-600');
+            event.target.classList.add('bg-indigo-100', 'text-indigo-600');
+            updateMovementTable();
+        }
+
+        document.getElementById('inventory-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('item-name').value.trim();
+            const quantity = parseInt(document.getElementById('item-quantity').value);
+            const unit = document.getElementById('item-unit').value;
+            const minStock = parseInt(document.getElementById('item-min').value);
+
+            if (name && quantity >= 0 && unit && minStock >= 0) {
+                const existing = inventory.find(i => i.name.toLowerCase() === name.toLowerCase());
+                if (existing) {
+                    existing.quantity = quantity;
+                    existing.unit = unit;
+                    existing.minStock = minStock;
+                } else {
+                    inventory.push({ name, quantity, unit, minStock });
+                }
+                updateInventoryTable();
+                this.reset();
+            } else {
+                alert('Por favor, completa todos los campos correctamente.');
+            }
+        });
+
+        document.getElementById('tools-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('tool-name').value.trim();
+            const quantity = parseInt(document.getElementById('tool-quantity').value);
+            const category = document.getElementById('tool-category').value;
+            const location = document.getElementById('tool-location').value;
+
+            if (name && quantity >= 0 && category && location) {
+                const existing = tools.find(t => t.name.toLowerCase() === name.toLowerCase());
+                if (existing) {
+                    existing.quantity = quantity;
+                    existing.category = category;
+                    existing.location = location;
+                } else {
+                    tools.push({ name, quantity, category, location });
+                }
+                updateToolsTable();
+                this.reset();
+            } else {
+                alert('Por favor, completa todos los campos correctamente.');
+            }
+        });
+
+        document.getElementById('movement-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const itemName = document.getElementById('movement-item').value;
+            const type = document.getElementById('movement-type').value;
+            const quantity = parseInt(document.getElementById('movement-quantity').value);
+            const reason = document.getElementById('movement-reason').value.trim();
+
+            if (itemName && quantity > 0 && reason) {
+                const item = inventory.find(i => i.name === itemName);
+                if (type === 'salida' && item.quantity < quantity) {
+                    alert('Stock insuficiente para esta salida.');
+                    return;
+                }
+
+                item.quantity += type === 'entrada' ? quantity : -quantity;
+                movements.push({
+                    date: new Date().toLocaleString('es-ES'),
+                    item: itemName,
+                    type: type,
+                    category: 'insumo',
+                    quantity,
+                    unit: item.unit,
+                    reason
+                });
+
+                updateInventoryTable();
+                updateMovementTable();
+                this.reset();
+            } else {
+                alert('Por favor, completa todos los campos correctamente.');
+            }
+        });
+
+        document.getElementById('tool-movement-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const toolName = document.getElementById('tool-movement-item').value;
+            const type = document.getElementById('tool-movement-type').value;
+            const quantity = parseInt(document.getElementById('tool-movement-quantity').value);
+            const reason = document.getElementById('tool-movement-reason').value.trim();
+
+            if (toolName && quantity > 0 && reason) {
+                const tool = tools.find(t => t.name === toolName);
+                if (type === 'salida' && tool.quantity < quantity) {
+                    alert('Cantidad insuficiente para esta salida.');
+                    return;
+                }
+
+                tool.quantity += type === 'entrada' ? quantity : -quantity;
+                movements.push({
+                    date: new Date().toLocaleString('es-ES'),
+                    item: toolName,
+                    type: type,
+                    category: 'herramienta',
+                    quantity,
+                    unit: 'unid',
+                    reason
+                });
+
+                updateToolsTable();
+                updateMovementTable();
+                this.reset();
+            } else {
+                alert('Por favor, completa todos los campos correctamente.');
+            }
+        });
+
+        function deleteItem(index) {
+            if (confirm('¿Confirmar eliminación de este insumo?')) {
+                inventory.splice(index, 1);
+                updateInventoryTable();
+            }
+        }
+
+        function editItem(index) {
+            const item = inventory[index];
+            document.getElementById('item-name').value = item.name;
+            document.getElementById('item-quantity').value = item.quantity;
+            document.getElementById('item-unit').value = item.unit;
+            document.getElementById('item-min').value = item.minStock;
+            document.getElementById('item-name').focus();
+        }
+
+        function deleteTool(index) {
+            if (confirm('¿Confirmar eliminación de esta herramienta?')) {
+                tools.splice(index, 1);
+                updateToolsTable();
+            }
+        }
+
+        function editTool(index) {
+            const tool = tools[index];
+            document.getElementById('tool-name').value = tool.name;
+            document.getElementById('tool-quantity').value = tool.quantity;
+            document.getElementById('tool-category').value = tool.category;
+            document.getElementById('tool-location').value = tool.location;
+            document.getElementById('tool-name').focus();
+        }
+
+        updateInventoryTable();
+        updateToolsTable();
+        updateMovementTable();
+    </script>
+</body>
+
+</html>
