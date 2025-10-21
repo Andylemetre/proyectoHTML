@@ -131,6 +131,7 @@
 </head>
 
 <body class="min-h-screen">
+    <!-- Encabezado de la página con un fondo degradado y título -->
     <header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-6 shadow-lg">
         <div class="container mx-auto">
             <h1 class="text-4xl font-bold flex items-center gap-3">
@@ -141,7 +142,7 @@
     </header>
 
     <main class="container mx-auto p-6 max-w-7xl">
-        <!-- Tabs de navegación -->
+        <!-- Tabs de navegación para cambiar entre insumos, herramientas y historial -->
         <div class="flex gap-4 mb-8 border-b-2 border-white bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur">
             <button class="tab-btn active text-white font-semibold px-6 py-2" onclick="switchTab('insumos')">
                 <i class="fas fa-boxes mr-2"></i>Insumos
@@ -156,7 +157,7 @@
 
         <!-- TAB: INSUMOS -->
         <div id="tab-insumos" class="tab-content">
-            <!-- Formulario Insumos -->
+            <!-- Formulario para añadir nuevos insumos -->
             <section class="bg-white p-8 rounded-xl card-shadow mb-8">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-plus-circle text-indigo-600"></i>Añadir Nuevo Insumo
@@ -181,7 +182,7 @@
                 </form>
             </section>
 
-            <!-- Tabla Insumos -->
+            <!-- Tabla que muestra el inventario actual de insumos -->
             <section class="bg-white p-8 rounded-xl card-shadow">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-warehouse text-indigo-600"></i>Inventario Actual
@@ -203,7 +204,7 @@
                 </div>
             </section>
 
-            <!-- Registrar Movimiento Insumos -->
+            <!-- Formulario para registrar movimientos de insumos -->
             <section class="bg-white p-8 rounded-xl card-shadow mt-8">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-exchange-alt text-indigo-600"></i>Registrar Movimiento de Insumo
@@ -226,7 +227,7 @@
 
         <!-- TAB: HERRAMIENTAS -->
         <div id="tab-herramientas" class="tab-content hidden">
-            <!-- Formulario Herramientas -->
+            <!-- Formulario para añadir nuevas herramientas -->
             <section class="bg-white p-8 rounded-xl card-shadow mb-8">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-plus-circle text-indigo-600"></i>Añadir Nueva Herramienta
@@ -255,7 +256,7 @@
                 </form>
             </section>
 
-            <!-- Filtro por Ubicación -->
+            <!-- Sección para filtrar herramientas por ubicación -->
             <section class="bg-white p-8 rounded-xl card-shadow mb-8">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-map-marker-alt text-indigo-600"></i>Filtrar por Ubicación
@@ -292,7 +293,7 @@
                 </div>
             </section>
 
-            <!-- Tabla Herramientas -->
+            <!-- Tabla que muestra las herramientas disponibles -->
             <section class="bg-white p-8 rounded-xl card-shadow">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-wrench text-indigo-600"></i>Herramientas Disponibles
@@ -315,7 +316,7 @@
                 </div>
             </section>
 
-            <!-- Registrar Movimiento Herramientas -->
+            <!-- Formulario para registrar movimientos de herramientas -->
             <section class="bg-white p-8 rounded-xl card-shadow mt-8">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-exchange-alt text-indigo-600"></i>Registrar Movimiento de Herramienta
@@ -339,6 +340,7 @@
 
         <!-- TAB: HISTORIAL -->
         <div id="tab-historial" class="tab-content hidden">
+            <!-- Sección que muestra el historial de movimientos -->
             <section class="bg-white p-8 rounded-xl card-shadow">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-history text-indigo-600"></i>Historial de Movimientos
