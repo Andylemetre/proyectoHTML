@@ -150,23 +150,29 @@
             <button class="tab-btn text-white font-semibold px-6 py-2" onclick="switchTab('herramientas')">
                 <i class="fas fa-tools mr-2"></i>Herramientas
             </button>
+            <!-- Botón para cambiar a la pestaña de historial -->
             <button class="tab-btn text-white font-semibold px-6 py-2" onclick="switchTab('historial')">
                 <i class="fas fa-history mr-2"></i>Historial
             </button>
         </div>
 
-        <!-- TAB: INSUMOS -->
+        <!-- Contenedor principal de la pestaña de insumos -->
         <div id="tab-insumos" class="tab-content">
-            <!-- Formulario para añadir nuevos insumos -->
+            <!-- Sección para agregar nuevos insumos -->
             <section class="bg-white p-8 rounded-xl card-shadow mb-8">
+                <!-- Título de la sección -->
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                     <i class="fas fa-plus-circle text-indigo-600"></i>Añadir Nuevo Insumo
                 </h2>
+                <!-- Formulario para agregar nuevos insumos -->
                 <form id="inventory-form" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <!-- Campo de texto para el nombre del insumo -->
                     <input type="text" id="item-name" placeholder="Nombre del insumo"
                         class="input-field p-3 rounded-lg">
+                    <!-- Campo numérico para la cantidad -->
                     <input type="number" id="item-quantity" placeholder="Cantidad" class="input-field p-3 rounded-lg"
                         min="0">
+                    <!-- Selector desplegable para la unidad de medida -->
                     <select id="item-unit" class="input-field p-3 rounded-lg">
                         <option value="">Unidad de medida</option>
                         <option value="unid">Unidades</option>
@@ -174,8 +180,10 @@
                         <option value="lt">Litros</option>
                         <option value="gr">Gramos</option>
                     </select>
+                    <!-- Campo numérico para el stock mínimo -->
                     <input type="number" id="item-min" placeholder="Stock mínimo" class="input-field p-3 rounded-lg"
                         min="0">
+                    <!-- Botón para enviar el formulario -->
                     <button type="submit" class="btn-primary text-white p-3 rounded-lg font-semibold">
                         <i class="fas fa-check mr-2"></i>Añadir
                     </button>
